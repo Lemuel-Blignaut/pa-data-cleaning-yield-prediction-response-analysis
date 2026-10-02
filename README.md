@@ -2,7 +2,7 @@
 
 This repository contains a comprehensive suite of Python modules designed for processing, analyzing, aggregating, and modeling spatial precision agriculture data. The toolkit handles everything from raw yield map ingestion and sensor delay correction to spatial block cross-validation and post-hoc model interpretability.
 
-## 📦 Dependencies
+##  Dependencies
 
 To run this pipeline, you will need the following key Python libraries installed:
 *   **Geospatial & Data Processing:** `geopandas`, `pandas`, `numpy`, `shapely`, `scipy`
@@ -14,7 +14,7 @@ To run this pipeline, you will need the following key Python libraries installed
 
 ---
 
-## 📂 Project Structure & Modules
+## Project Structure & Modules
 
 The toolkit is divided into modular Python files, each handling a specific stage of the data pipeline:
 
@@ -70,5 +70,5 @@ Unpacks the "black box" models to understand what drives crop yield.
 *   **`shap_values(...)`**: Implements SHAP (SHapley Additive exPlanations) for global feature importance (Summary/Beeswarm plots) and local pixel-level explanations (Waterfall plots).
 *   **`plot_three_pdp_ice(...)` / `two_dim_pdp_plots(...)`**: Generates 1D and 2D Partial Dependence Plots (PDP) and Individual Conditional Expectation (ICE) curves to visualize the modeled relationships between inputs (e.g., fertilizer, seeding rate) and yield.
 
-## 📄 `schema_mapping.json`
+##  `schema_mapping.json`
 This JSON file contains a dictionary of aliases for various precision ag metrics (e.g., linking "Yld_Mass_D", "DRYMATTER", and "VRYIELDMAS" to the standard target `yield_mass_dry`). It is utilized by `data_imports.py` to ensure seamless processing regardless of the machinery or monitor brand used to collect the data.
