@@ -1,0 +1,24 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+.venv/
+env/
+
+# Jupyter
+.ipynb_checkpoints/
+
+# Spatial data formats & shapefile sidecars
+*.shp
+*.shx
+*.dbf
+*.prj
+*.cpg
+*.geojson
+*.gpkg
+*.tif
+*.tiff
+
+# Model serialisations
+*.joblib
+*.pkl
