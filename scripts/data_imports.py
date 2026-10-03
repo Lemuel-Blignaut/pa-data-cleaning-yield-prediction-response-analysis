@@ -46,7 +46,8 @@ def files_to_dict(dir_path = None):
 
 
 def cast_to_crs(input_dict, crs):
-    
+    # cast the all of the dataframes in a dictionary to a common CRS,
+    # defaulting to EPSG:32734 if none provided.
     if crs is None:
         crs = 'EPSG:32734'
         print(f"No CRS provided. Defaulting to {crs}")
