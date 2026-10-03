@@ -1,3 +1,4 @@
+from IPython import display
 import matplotlib.colors as mcolors
 import matplotlib.pyplot as plt
 import numpy as np
@@ -113,9 +114,7 @@ def two_dim_pdp_plots(model, X_train, feat_combos):
     2xN numpy array that corresponds to PDPs we want to plot
     """      
     print("Generating 2D Interaction Plots")
-    vmin = 1.43
-    vmax = 1.57
-    step = 0.01
+
     for i in range(0, len(feat_combos)):
         print(f'\n Plotting PDP for {feat_combos[i,0]} vs {feat_combos[i,1]}')
         fig, ax = plt.subplots(figsize=(6,5))
@@ -129,6 +128,10 @@ def two_dim_pdp_plots(model, X_train, feat_combos):
             n_jobs= -1
         )
         
+        pdp_vals = display.pd_results[0]['average']
+        vmin = np.nanmin(pdp_vals)
+        vmax = np.nanmax(pdp_vals)
+        step = (vmax-vmin)/10
         cs = display.contours_[0, 0]
         # 2. Generate boundaries and a discrete norm
         bounds = np.arange(vmin, vmax + step, step)
@@ -157,9 +160,7 @@ def compare_two_dim_pdp_plots(model_one,model_two, model_names, X_train, feat_co
     2xN numpy array that corresponds to PDPs we want to plot
     """      
     print("Generating 2D Interaction Plots")
-    vmin = 1.43
-    vmax = 1.57
-    step = 0.01
+
     for i in range(0, len(feat_combos)):
         print(f'\n Plotting PDP for {feat_combos[i,0]} vs {feat_combos[i,1]}')
         
@@ -185,12 +186,16 @@ def compare_two_dim_pdp_plots(model_one,model_two, model_names, X_train, feat_co
             n_jobs= -1
         )
     
+        pdp_vals = display_one.pd_results[0]['average']
+        vmin = np.nanmin(pdp_vals)
+        vmax = np.nanmax(pdp_vals)
+        step = (vmax-vmin)/10
         cs = display_one.contours_[0, 0]
         # 2. Generate boundaries and a discrete norm
         bounds = np.arange(vmin, vmax + step, step)
         norm = mcolors.BoundaryNorm(boundaries=bounds, ncolors=256)
 
-# 3. Apply the norm directly to the contour artist
+        # 3. Apply the norm directly to the contour artist
         cs.set_norm(norm)
         cs.set_clim(vmin, vmax)
         
@@ -500,6 +505,4 @@ def run_full_diagnostics(model, X_train, y_train, X_test, y_test,feature_names, 
             plt.show()
     except Exception as e:
         print(f'oops {e}')
-
-
 

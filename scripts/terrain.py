@@ -5,18 +5,19 @@ from joblib import Parallel, delayed
 
 
 def terrain(x,y,z, crit, s):
-    """_summary_
+    """Function to calculate slope and aspect given coordinates and elevation
 
     Args:
-        x (_type_): _description_
-        y (_type_): _description_
-        z (_type_): _description_
-        crit (_type_): _description_
-        s (_type_): _description_
+        x (float): x-coordinate, metric coordinate system
+        y (float): y-coordinate, metric coordinate system
+        z (float): elevation, m.a.s.l.
+        crit (string): criteria that determines whether a radius or n neigbours around each point should be used
+        s (int): radius or n neigbours
 
     Returns:
-        _type_: _description_
+        results (dataframe): df with slope in degrees, aspect in degrees, elevation in m.a.s.l.
     """
+    
     points = np.column_stack((x, y, z))
     tree = KDTree(points[:, :2])
     n_jobs = -1 # Use all cores; or set to something like 4
