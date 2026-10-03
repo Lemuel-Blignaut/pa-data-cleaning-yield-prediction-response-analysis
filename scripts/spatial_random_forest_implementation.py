@@ -5,9 +5,8 @@ from shapely.geometry import Point
 import matplotlib.ticker as ticker
 import seaborn as sns
 import matplotlib.pyplot as plt
-# Import PyGRF components NB the MODIFIED one is MY OWN implementation, adapted to support cuML
 from PyGRF import PyGRFBuilder
-from PyGRF import search_bw_lw_ISA  # Incremental Spatial Autocorrelation tool
+from PyGRF import search_bw_lw_ISA 
 from shapely import Point
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import r2_score
@@ -15,8 +14,7 @@ from sklearn.metrics import root_mean_squared_error as rmse
 import numpy as np
 
 
-
-def prep_dataset(full_dataset, yield_colname, pred_cols, NON_FEATURE_COLS):
+def prep_dataset(full_dataset, yield_colname, NON_FEATURE_COLS):
 
     # To use full DF
     # Below only needed if not doing the 5-fold initial split above
@@ -41,7 +39,7 @@ def prep_dataset(full_dataset, yield_colname, pred_cols, NON_FEATURE_COLS):
     training_coords = X_train[['x', 'y']]
     testing_coords = X_test[['x', 'y']]
     
-    return X_train, X_test, y_train, y_test, training_coords, testing_coords
+    return X_train, X_test, y_train, y_test, training_coords, testing_coords, pred_cols
 
 
 def spatial_parameters(y_train, X_train):
@@ -55,6 +53,7 @@ def spatial_parameters(y_train, X_train):
         bw_max=200, 
         step=5
     )
+    
     local_weight = max(0, morans_i) # Leverage Moran's I as the structural local weight mixing parameter
 
     print(f"Optimal Bandwidth: {bandwidth} nearest neighbors")
@@ -99,7 +98,6 @@ def train_grf_model(X_train, y_train,X_test,y_test, training_coords, testing_coo
     # Each row represents the importance profile belonging to that unique point's neighborhood model
     print(local_importance_df.head())
 
-
     global_importance_df = pd.DataFrame()
     global_importance_df["Quantity"] = ['Sum','Minimum','Maximum','Mean','Standard Deviation']
 
@@ -112,8 +110,7 @@ def train_grf_model(X_train, y_train,X_test,y_test, training_coords, testing_coo
     return pygrf_model, predict_combined, predict_global, local_importance_df, global_importance_df
 
 
-
-def plot_results(y_test, predict_combined, testing_coords, training_coords, pygrf_model, pred_cols, local_importance_df):
+def prep_results(y_test, predict_combined, testing_coords, training_coords, pygrf_model, pred_cols, local_importance_df):
     # --- VISUALIZATION WORKFLOW ---
 
     # 5. Mapping Residuals (on the Test Set)
@@ -135,9 +132,7 @@ def plot_results(y_test, predict_combined, testing_coords, training_coords, pygr
         geometry=[Point(xy) for xy in zip(training_coords['x'], training_coords['y'])]
     )
 
-
     global_feat_imp = pygrf_model.global_model.feature_importances_
-
 
     # 1. Filter the arrays
     f_floats = global_feat_imp
@@ -159,7 +154,6 @@ def plot_results(y_test, predict_combined, testing_coords, training_coords, pygr
         plt.show()
         
     return gdf_train, gdf_test
-
 
 
 def plot_local_r2_error(pygrf_model, training_coords):
@@ -184,7 +178,6 @@ def plot_local_r2_error(pygrf_model, training_coords):
     plt.show()
 
 
-
 def plot_residuals(gdf_test):
     # 7. Plotting the Results
     fig, ax = plt.subplots(1, 1, figsize=(6,4))
@@ -199,7 +192,6 @@ def plot_residuals(gdf_test):
     ax.yaxis.set_major_locator(ticker.MaxNLocator(nbins=4)) 
     plt.tight_layout()
     plt.show()
-
 
 
 def plot_local_feat_imp(gdf_train, feats):
@@ -218,8 +210,7 @@ def plot_local_feat_imp(gdf_train, feats):
     plt.show()
 
 
-
-def plot_actual_pred_res(predict_combined, testing_coords, y_test):
+def plot_actual_pred_res(predict_combined, testing_coords, y_test, gdf_test):
 
     predict_df = gpd.GeoDataFrame({
         'Predicted_Yield': predict_combined,
@@ -230,8 +221,6 @@ def plot_actual_pred_res(predict_combined, testing_coords, y_test):
         'Actual_Yield': y_test,
         'geometry': [Point(xy) for xy in zip(testing_coords['x'], testing_coords['y'])]
     })
-
-
 
     fig,ax = plt.subplots(1, 3, figsize=(11, 3))
     # Plot 2: Spatial Non-Stationarity of Feature A
@@ -264,7 +253,9 @@ def plot_actual_pred_res(predict_combined, testing_coords, y_test):
 
 
 def plot_parity_residuals(y_test, predict_combined):
-
+    
+    test_residuals = y_test - predict_combined
+    
     fig, ax = plt.subplots(1, 2, figsize=(8, 4))
     sns.scatterplot(x=y_test, y=predict_combined, alpha=0.4, color='blue', ax=ax[0])
     ax[0].plot([y_test.min(), y_test.max()], [y_test.min(), y_test.max()], 'r--')
@@ -277,7 +268,6 @@ def plot_parity_residuals(y_test, predict_combined):
     ax[1].set_title("Residual plot")
     ax[1].set_xlabel("Predicted yield")
     ax[1].set_ylabel("Residuals")
-
 
     plt.tight_layout()
     plt.show()
